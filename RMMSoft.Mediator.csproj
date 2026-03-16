@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <PackageId>rmm-soft.Mediator</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>rmm-soft</Authors>
+    <Company>rmm-soft</Company>
+    <Description>
+      Lightweight mediator implementation for Clean Architecture.
+      Supports CQRS, pipeline behaviors, and notifications.
+    </Description>
+    <PackageTags>mediator;cqrs;clean-architecture;pipeline;notifications</PackageTags>
+    <PackageProjectUrl>https://github.com/tu-usuario/rmm-soft-mediator</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/tu-usuario/rmm-soft-mediator</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
+    <PackageReference Include="Scrutor" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>
