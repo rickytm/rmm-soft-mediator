@@ -7,22 +7,19 @@
 
     <PackageId>rmm-soft.Mediator</PackageId>
     <Version>1.0.0</Version>
-    <Authors>rmm-soft</Authors>
+    <Authors>Ricardo M</Authors>
     <Company>rmm-soft</Company>
-    <Description>
-      Lightweight mediator implementation for Clean Architecture.
-      Supports CQRS, pipeline behaviors, and notifications.
-    </Description>
-    <PackageTags>mediator;cqrs;clean-architecture;pipeline;notifications</PackageTags>
-    <PackageProjectUrl>https://github.com/tu-usuario/rmm-soft-mediator</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/tu-usuario/rmm-soft-mediator</RepositoryUrl>
+    <Description>Lightweight mediator implementation for Clean Architecture in .NET. Supports CQRS, pipeline behaviors, and notifications.</Description>
+    <PackageTags>mediator;cqrs;clean-architecture;pipeline;notifications;dotnet</PackageTags>
+    <PackageProjectUrl>https://github.com/rickytm/rmm-soft-mediator</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rickytm/rmm-soft-mediator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageIcon>icon.png</PackageIcon>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,4 +28,7 @@
     <PackageReference Include="Scrutor" Version="7.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>
