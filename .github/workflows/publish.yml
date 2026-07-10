@@ -6,6 +6,7 @@ on:
       - main # Cambia a master si esa es tu rama principal
     paths:
       - '**/*.csproj'
+      - '.github/workflows/*.yml'
 
 jobs:
   release-and-publish:
