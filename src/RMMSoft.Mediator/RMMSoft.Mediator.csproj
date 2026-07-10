@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
 
     <PackageId>rmm-soft.Mediator</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Ricardo M</Authors>
     <Company>rmm-soft</Company>
     <Description>Lightweight mediator implementation for Clean Architecture in .NET. Supports CQRS, pipeline behaviors, and notifications.</Description>

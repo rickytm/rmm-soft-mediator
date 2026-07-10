@@ -2,8 +2,11 @@ using Microsoft.Extensions.DependencyInjection;
 using RMMSoft.Mediator.Abstractions;
 using RMMSoft.Mediator.Implementation;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace RMMSoft.Mediator.Extensions;
+
+
 
 public static class MediatorServiceExtensions
 {
@@ -15,17 +18,20 @@ public static class MediatorServiceExtensions
     /// <returns>The IServiceCollection with the registered services.</returns>
     public static IServiceCollection AddRMMSoftMediator(this IServiceCollection services, params Assembly[] assemblies)
     {
-        services.AddScoped<IAppMediator, AppMediator>();
+        services.TryAddScoped<IAppMediator, AppMediator>();
 
         foreach (var assembly in assemblies)
         {
             // 1. FILTRADO ESTRICTO: Solo clases concretas (omitimos abstractas, interfaces y genéricos abiertos puros)
+            // Soportamos clases normales (IsPublic) Y clases anidadas/internas (IsNestedPublic, IsNestedAssembly, etc.)
             var handlerTypes = assembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && !t.IsGenericTypeDefinition &&
+                .Where(t => (t.IsClass || t.IsNested) && // <-- Soporte para clases internas anidadas
+                            !t.IsAbstract && 
+                            !t.IsGenericTypeDefinition &&
                             t.GetInterfaces().Any(i =>
                                 i.IsGenericType &&
                                 (i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>) ||
-                                 i.GetGenericTypeDefinition() == typeof(IRequestHandler<>))));
+                                i.GetGenericTypeDefinition() == typeof(IRequestHandler<>))));
 
             foreach (var handler in handlerTypes)
             {
@@ -33,9 +39,15 @@ public static class MediatorServiceExtensions
                     .Where(i => i.IsGenericType &&
                         (i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>) ||
                          i.GetGenericTypeDefinition() == typeof(IRequestHandler<>))))
-                {
-                    // 2. CICLO DE VIDA OPTIMIZADO: Cambiado a Scoped para unificar con DbContext y Repositorios
-                    services.AddScoped(iface, handler);
+                {                    
+                    if (iface.GetGenericArguments().Length == 1)
+                    {
+                        services.AddScoped(iface, handler);
+                    }
+                    else
+                    {
+                        services.AddScoped(iface, handler);
+                    }
                 }
             }
 
