@@ -5,19 +5,23 @@ on:
     branches:
       - main # Cambia a master si esa es tu rama principal
     paths:
-      - '**/*.csproj' # Solo se ejecuta si modificas el archivo del proyecto (cambio de versión)
+      - '**/*.csproj'
 
 jobs:
   release-and-publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Permiso obligatorio para que el script cree Tags y Releases en tu cuenta
+      contents: write
+
+    defaults:
+      run:
+        working-directory: ./src 
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0 # Trae todo el historial para verificar Tags existentes
+        fetch-depth: 0
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
@@ -26,14 +30,17 @@ jobs:
 
     - name: Extract Version from .csproj
       id: get_version
+      working-directory: ./ 
       run: |
-        # Busca la línea <Version>X.Y.Z</Version>, limpia los espacios y extrae el texto
-        VERSION=$(grep -oPm1 '(?<=<Version>)[^<]+' *.csproj || grep -oPm1 '(?<=<Version>)[^<]+' src/**/*.csproj)
+        CSPROJ_FILE=$(find . -name "*.csproj" -print -quit)
+        echo "Archivo encontrado: $CSPROJ_FILE"
+        VERSION=$(grep -oPm1 '(?<=<Version>)[^<]+' "$CSPROJ_FILE")
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "Versión detectada en el .csproj: $VERSION"
 
     - name: Check if Tag Exists
       id: check_tag
+      working-directory: ./
       run: |
         if git rev-parse "v${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
           echo "exists=true" >> $GITHUB_OUTPUT
@@ -42,27 +49,17 @@ jobs:
           echo "exists=false" >> $GITHUB_OUTPUT
         fi
 
+    - name: Restore Dependencies
+      if: steps.check_tag.outputs.exists == 'false'
+      run: dotnet restore RMMSoft.Mediator.sln
+
     - name: Build Project (Release)
       if: steps.check_tag.outputs.exists == 'false'
-      run: |
-        dotnet restore
-        dotnet build -c Release
-
-    - name: Create GitHub Release and Tag
-      if: steps.check_tag.outputs.exists == 'false'
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ steps.get_version.outputs.version }}
-        name: Release v${{ steps.get_version.outputs.version }}
-        body: |
-          Automated release for version ${{ steps.get_version.outputs.version }}.
-          Check commits for details.
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub lo genera solo, no debes configurarlo
+      run: dotnet build RMMSoft.Mediator.sln -c Release --no-restore
 
     - name: Push Package to NuGet
       if: steps.check_tag.outputs.exists == 'false'
+      # Buscamos de forma recursiva partiendo desde la raíz del repositorio para no perder el .nupkg
+      working-directory: ./
       run: |
-        dotnet nuget push **/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://nuget.org --skip-duplicate
+        dotnet nuget push "**/bin/Release/**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://nuget.org --skip-duplicate
