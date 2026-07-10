@@ -4,18 +4,17 @@ using RMMSoft.Mediator.Abstractions;
 
 namespace RMMSoft.Mediator.Implementation;
 
-
 public class AppMediator(IServiceProvider services, ILogger<AppMediator> logger) : IAppMediator
 {
     private readonly ILogger<AppMediator> _logger = logger;
+
     public async Task Send<TRequest>(TRequest request, CancellationToken cancellationToken = default)
         where TRequest : IRequest
     {
-        // Envuelve el handler en un pipeline TResponse = Unit
         var handler = services.GetRequiredService<IRequestHandler<TRequest>>();
-        var behaviors = services.GetServices<IPipelineBehavior<TRequest, Unit>>().Reverse();
+        var behaviors = services.GetServices<IPipelineBehavior<TRequest, object>>();
 
-        Func<Task<Unit>> pipeline = async () =>
+        Func<Task<object>> pipeline = async () =>
         {
             await handler.Handle(request, cancellationToken);
             return Unit.Value;
@@ -23,9 +22,9 @@ public class AppMediator(IServiceProvider services, ILogger<AppMediator> logger)
 
         foreach (var behavior in behaviors)
         {
-            var next = pipeline;
-            var b = behavior;
-            pipeline = () => b.Handle(request, next, cancellationToken);
+            var currentBehavior = behavior;
+            var nextPipeline = pipeline;
+            pipeline = () => currentBehavior.Handle(request, nextPipeline, cancellationToken);
         }
 
         await pipeline();
@@ -34,6 +33,7 @@ public class AppMediator(IServiceProvider services, ILogger<AppMediator> logger)
     public async Task<TResponse> Send<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken = default)
         where TRequest : IRequest<TResponse>
     {
+        // Se queda exactamente con tu lógica original (es perfecta e impecable)
         var handler = services.GetRequiredService<IRequestHandler<TRequest, TResponse>>();
         var behaviors = services.GetServices<IPipelineBehavior<TRequest, TResponse>>();
 
@@ -52,6 +52,7 @@ public class AppMediator(IServiceProvider services, ILogger<AppMediator> logger)
     public async Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
         where TNotification : INotification
     {
+        // Se mantiene exactamente tu estructura original con el Logger funcionando igual
         var handlers = services.GetServices<INotificationHandler<TNotification>>();
         var behaviors = services.GetServices<INotificationBehavior<TNotification>>().Reverse();
 
@@ -92,4 +93,3 @@ public class AppMediator(IServiceProvider services, ILogger<AppMediator> logger)
         }
     }
 }
-
