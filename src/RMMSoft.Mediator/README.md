@@ -2,6 +2,8 @@
 
 Lightweight mediator implementation for Clean Architecture in .NET. Supports CQRS, pipeline behaviors, and notifications — with no external dependencies beyond `Microsoft.Extensions`.
 
+ **Built with ❤️ for the community.** No strings attached—just sharing a clean, lightweight tool that helped me in my own projects, completely free and open-source forever.
+
 ## Features
 
 - ✅ **CQRS** — Commands and Queries with `IRequest<TResponse>`
